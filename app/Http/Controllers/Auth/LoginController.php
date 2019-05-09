@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
@@ -20,20 +21,26 @@ class LoginController extends Controller
 
     use AuthenticatesUsers;
 
-    /**
-     * Where to redirect users after login.
-     *
-     * @var string
-     */
-    protected $redirectTo = '/home';
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function getLogin()
     {
-        $this->middleware('guest')->except('logout');
+        return view('auth.login');
+    }
+
+    public function postLogin(Request $request)
+    {
+        $scredentials = $request->only('email', 'password');
+
+        if (\Auth::attempt($scredentials))
+        {
+            return redirect()->route('home');
+        }
+
+        return redirect()->back()->with('error', 'Đăng nhập thất bại. E-mail hoặc mật khẩu không đúng!');
+    }
+
+    public function getLogout()
+    {
+        \Auth::logout();
+        return redirect()->route('home');
     }
 }

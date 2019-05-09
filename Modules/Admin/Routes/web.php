@@ -11,12 +11,59 @@
 |
 */
 
-Route::prefix('admin')->group(function() {
-    Route::get('/', 'AdminController@index');
+Route::prefix('authenticate')->group(function (){
+    Route::get('/login', 'AdminAuthController@getLogin')->name('admin.login');
+    Route::post('/login', 'AdminAuthController@postLogin');
+    Route::get('/logout', 'AdminAuthController@getLogout')->name('admin.logout');
+});
 
-    Route::group(['prefix' => 'category'], function(){
-    	Route::get('/', 'AdminCategoryController@index')->name('admin.get.list.category');
-    	Route::get('/create', 'AdminCategoryController@create')->name('admin.get.create.category');
-    	Route::post('/create', 'AdminCategoryController@store');
+Route::prefix('admin')->middleware('CheckLoginAdmin')->group(function() {
+    Route::get('/', 'AdminController@index')->name('admin.home');
+
+    // Quan ly danh muc
+    Route::group(['prefix' => 'category'], function (){
+        Route::get('/', 'AdminCategoryController@index')->name('admin.get.list.category');
+        Route::get('/create', 'AdminCategoryController@create')->name('admin.get.create.category');
+        Route::post('/create', 'AdminCategoryController@store');
+
+        Route::get('/update/{id}', 'AdminCategoryController@edit')->name('admin.get.edit.category');
+        Route::post('/update/{id}', 'AdminCategoryController@update');
+
+        Route::get('/{action}/{id}', 'AdminCategoryController@action')->name('admin.get.action.category');
+    });
+
+    // Quan ly san pham
+    Route::group(['prefix' => 'product'], function (){
+        Route::get('/', 'AdminProductController@index')->name('admin.get.list.product');
+        Route::get('/create', 'AdminProductController@create')->name('admin.get.create.product');
+        Route::post('/create', 'AdminProductController@store');
+
+        Route::get('/update/{id}', 'AdminProductController@edit')->name('admin.get.edit.product');
+        Route::post('/update/{id}', 'AdminProductController@update');
+
+        Route::get('/{action}/{id}', 'AdminProductController@action')->name('admin.get.action.product');
+    });
+
+    // Quan ly don hang
+    Route::group(['prefix' => 'transaction'], function (){
+        Route::get('/', 'AdminTransactionController@index')->name('admin.get.list.transaction');
+        Route::get('/view/{id}', 'AdminTransactionController@viewOrder')->name('admin.get.view.order');
+        Route::get('/active/{id}', 'AdminTransactionController@actionTransaction')->name('admin.get.active.transaction');
+    });
+
+    // Quan ly nhan vien
+    Route::group(['prefix' => 'user'], function (){
+        Route::get('/', 'AdminUserController@index')->name('admin.get.list.user');
+    });
+
+    // Quan ly Rating
+    Route::group(['prefix' => 'rating'], function (){
+        Route::get('/', 'AdminRatingController@index')->name('admin.get.list.rating');
+    });
+
+    //Quan ly lien he
+    Route::group(['prefix' => 'contact'], function (){
+        Route::get('/', 'AdminContactController@index')->name('admin.get.list.contact');
+        Route::get('/{action}/{id}', 'AdminContactController@action')->name('admin.get.action.contact');
     });
 });
